@@ -1,13 +1,13 @@
 # GLOSSARY
 
-| English | 简体中文建议 | 说明 |
+| English | 简体中文 | 说明 |
 | --- | --- | --- |
 | Vaultwarden | Vaultwarden | 产品名保留英文。 |
 | Bitwarden | Bitwarden | 产品名保留英文。 |
 | organization | 组织 | vaultwarden/Bitwarden 组织。 |
 | collection | 集合 | 组织内共享集合。 |
 | user | 用户 | 管理后台用户。 |
-| admin | 管理员 / 管理后台 | 视上下文选择。 |
+| admin | 管理员 / 管理后台 | 按上下文译为用户角色或后台界面。 |
 | emergency access | 紧急访问 | 功能名。 |
 | two-step login / 2FA | 两步登录 / 双重验证 | 邮件标题可用“两步登录”。 |
 | device | 设备 | 登录设备。 |
