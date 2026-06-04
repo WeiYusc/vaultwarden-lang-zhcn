@@ -30,4 +30,4 @@
 ## 维护说明
 
 - 升级 vaultwarden 上游版本时，应先更新 `upstream/<version>/manifest.json` 与 `checksums.json`，再迁移模板并复核新增或变更内容。
-- 更新后建议运行 `make check`，确认文件列表、Handlebars token 与邮件分隔符仍与上游模板匹配。
+- 更新后建议运行 `make check`，确认文件列表、Handlebars token、邮件分隔符和关键结构属性仍与上游模板匹配。

@@ -2,7 +2,7 @@
 
 vaultwarden 简体中文模板翻译包，适用于 vaultwarden `1.36.0` 的 `admin` 与 `email` Handlebars 模板。
 
-本仓库仅提供 vaultwarden 模板文件的简体中文翻译，不是 vaultwarden 的 fork，也不包含或分发 vaultwarden 服务端源码。安装时仅将 `templates/admin` 与 `templates/email` 覆盖或挂载到 vaultwarden 对应模板目录。
+本仓库仅提供 vaultwarden 模板文件的简体中文翻译，不是 vaultwarden 的 fork，也不包含或分发 vaultwarden 服务端源码。安装时仅将 `templates/admin` 与 `templates/email` 放入或挂载到 vaultwarden 的模板覆盖目录，不需要修改容器镜像内的源码文件。
 
 ## 内容
 
@@ -13,14 +13,17 @@ vaultwarden 简体中文模板翻译包，适用于 vaultwarden `1.36.0` 的 `ad
 
 ## 使用
 
-请先备份现有模板。根据你的部署方式，将本仓库的模板目录复制或挂载到 vaultwarden 使用的模板路径，例如：
+请先备份现有模板。本项目翻译的是 vaultwarden 官方源码中的 `src/static/templates/admin` 与 `src/static/templates/email` 模板；运行时请使用 vaultwarden 的模板覆盖目录，不要直接修改容器镜像内的源码路径。
+
+Docker 部署通常可以将本仓库的 `templates/` 目录只读挂载到容器内 `/data/templates`，例如：
 
 ```bash
-cp -a templates/admin /path/to/vaultwarden/templates/
-cp -a templates/email /path/to/vaultwarden/templates/
+docker run ... \
+  -v /path/to/vaultwarden-lang-zhcn/templates:/data/templates:ro \
+  vaultwarden/server:1.36.0
 ```
 
-Docker 部署通常可以通过 volume 将本仓库的模板目录挂载到容器内对应模板路径；实际路径请以所使用的镜像和部署配置为准。
+如果使用非 Docker 部署，请将 `templates/admin` 与 `templates/email` 复制到 vaultwarden 实际读取的模板覆盖目录。具体路径仍以你的部署配置为准。
 
 ## 已知边界
 

@@ -7,7 +7,7 @@ import tarfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_NAME = "vaultwarden-lang-zhcn-admin-email-1.36.0-zh.1"
+DEFAULT_NAME = "vaultwarden-lang-zhcn-admin-email-1.36.0-zh.2"
 INCLUDE = [
     "templates",
     "README.md",

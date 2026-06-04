@@ -9,6 +9,7 @@ check: check-upstream
 	$(PYTHON) scripts/check_file_list.py
 	$(PYTHON) scripts/check_tokens.py
 	$(PYTHON) scripts/check_email_delimiters.py
+	$(PYTHON) scripts/check_structure_attrs.py
 
 package: check
 	$(PYTHON) scripts/build_release.py
