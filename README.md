@@ -25,6 +25,8 @@ docker run ... \
 
 如果使用非 Docker 部署，请将 `templates/admin` 与 `templates/email` 复制到 vaultwarden 实际读取的模板覆盖目录。具体路径仍以你的部署配置为准。
 
+> **关于缺省模板回退：**部分 vaultwarden 安装方式的 data 目录初始并不会包含 `templates/`。这是正常现象；vaultwarden 会先尝试从 `/data/templates` 等运行时覆盖目录读取同名模板，找不到的模板继续使用程序内置的官方模板。因此，本项目只提供并覆盖 `admin/` 与 `email/` 时，未随包提供的顶层 `404.hbs` 和 `scss/` 模板仍会从 vaultwarden 内置模板加载，不会因为 `/data/templates` 目录里没有这些文件而导致 404 页面或 CSS 失效。不要为了“补齐目录”混入其他 vaultwarden 版本或其他实例的 `404.hbs`/`scss` 文件；如确需自定义它们，应使用与你当前 vaultwarden 版本完全一致的官方模板作为基线单独维护。
+
 ## 已知边界
 
 vaultwarden 管理后台目前并非所有文本都通过 Handlebars 模板提供。本项目只覆盖官方支持通过模板覆盖的内容，因此仍可能看到少量英文：
