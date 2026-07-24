@@ -1,23 +1,24 @@
 # TRANSLATION_STATUS
 
-目标版本：vaultwarden `1.36.0`
+目标版本：vaultwarden `1.37.0`
 
 ## 摘要
 
 | 类别 | 文件数 | 状态 |
 | --- | ---: | --- |
-| admin | 6 | 已建立简体中文翻译，基于 `wcjxixi/vaultwarden-lang-zhcn` 的 `admin - v1.35.4` 参考翻译迁移，并与 1.36.0 token 校验对齐。 |
-| email | 63 | 已建立简体中文翻译，基于 `wcjxixi/vaultwarden-lang-zhcn` 的 `email - v1.32.4` 参考翻译迁移；1.36.0 新增/缺失模板已按英文原文补译，并完成重点模板复核。 |
+| admin | 6 | 已建立简体中文翻译，基于 `wcjxixi/vaultwarden-lang-zhcn` 的 `admin - v1.35.4` 参考翻译迁移，并与 1.37.0 token 校验对齐。1.36.0 到 1.37.0 的官方 admin 模板内容未变化。 |
+| email | 63 | 已建立简体中文翻译，基于 `wcjxixi/vaultwarden-lang-zhcn` 的 `email - v1.32.4` 参考翻译迁移；此前缺失模板已按官方英文原文补译并完成重点复核。1.36.0 到 1.37.0 的官方 email 模板内容未变化。 |
 
 ## 校验状态
 
-- 文件列表：与 `upstream/1.36.0/admin`、`upstream/1.36.0/email` 对齐。
+- 文件列表：与 `upstream/1.37.0/admin`、`upstream/1.37.0/email` 对齐。
 - Handlebars token：通过 `scripts/check_tokens.py` 校验，要求 token 序列保持一致并保留 triple braces。
 - 邮件分隔符：普通文本邮件模板保留恰好一个 `<!---------------->`；仅 `email_header.hbs`、`email_footer.hbs`、`email_footer_text.hbs` 三个 partial 例外；HTML 邮件模板同样必须保留 delimiter。
+- 已确认 `1.37.0` 新增的 3 项配置文档来自 `src/config.rs` 动态数据，不属于本项目可覆盖的模板固定文案。
 
 ## 补译模板复核
 
-以下邮件模板在参考翻译版本中不存在，已依据 vaultwarden `1.36.0` 英文原文补译。复核范围包括文本版与 HTML 版的语义、术语、Handlebars token、HTML 链接和邮件分隔符。
+以下邮件模板在参考翻译版本中不存在，已依据 vaultwarden 官方英文原文补译；其内容在 `1.36.0` 与 `1.37.0` 间未发生变化。复核范围包括文本版与 HTML 版的语义、术语、Handlebars token、HTML 链接和邮件分隔符。
 
 | 模板 | 状态 | 审校备注 |
 | --- | --- | --- |

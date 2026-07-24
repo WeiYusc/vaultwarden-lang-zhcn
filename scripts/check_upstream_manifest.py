@@ -10,9 +10,14 @@ import sys
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_VERSION = "1.36.0"
+DEFAULT_VERSION = "1.37.0"
+EXPECTED_SCHEMA_VERSION = 1
 EXPECTED_REPO = "https://github.com/dani-garcia/vaultwarden"
-EXPECTED_COMMIT = "f21a3adae2fbb8582b60b121783c597fe6895ff4"
+EXPECTED_TEMPLATES_PATH = "src/static/templates"
+EXPECTED_COMMITS = {
+    "1.36.0": "f21a3adae2fbb8582b60b121783c597fe6895ff4",
+    "1.37.0": "46ae59eaf444f0ae0a799070cf2bd6c415284a51",
+}
 EXPECTED_SCOPE = ["admin", "email"]
 
 
@@ -52,12 +57,19 @@ def main() -> int:
         print(f"[FAIL] {msg}")
 
     upstream = manifest.get("upstream", {})
+    if manifest.get("schema_version") != EXPECTED_SCHEMA_VERSION:
+        fail(f"manifest schema_version mismatch: {manifest.get('schema_version')!r}")
     if upstream.get("repo") != EXPECTED_REPO:
         fail(f"manifest upstream.repo mismatch: {upstream.get('repo')!r}")
     if upstream.get("tag") != args.version:
         fail(f"manifest upstream.tag mismatch: {upstream.get('tag')!r}")
-    if upstream.get("commit") != EXPECTED_COMMIT:
+    expected_commit = EXPECTED_COMMITS.get(args.version)
+    if expected_commit is None:
+        fail(f"unsupported version: {args.version!r}")
+    elif upstream.get("commit") != expected_commit:
         fail(f"manifest upstream.commit mismatch: {upstream.get('commit')!r}")
+    if upstream.get("templates_path") != EXPECTED_TEMPLATES_PATH:
+        fail(f"manifest upstream.templates_path mismatch: {upstream.get('templates_path')!r}")
     if manifest.get("scope") != EXPECTED_SCOPE:
         fail(f"manifest scope mismatch: {manifest.get('scope')!r}")
     if manifest.get("checksum_algorithm") != "sha256":

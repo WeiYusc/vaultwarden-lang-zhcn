@@ -5,7 +5,7 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-UPSTREAM = ROOT / "upstream" / "1.36.0"
+UPSTREAM = ROOT / "upstream" / "1.37.0"
 TEMPLATES = ROOT / "templates"
 SUBDIRS = ("admin", "email")
 

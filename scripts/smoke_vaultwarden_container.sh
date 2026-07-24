@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE="${VAULTWARDEN_IMAGE:-vaultwarden/server:1.36.0}"
+IMAGE="${VAULTWARDEN_IMAGE:-vaultwarden/server:1.37.0}"
 PORT="${SMOKE_PORT:-8099}"
 ADMIN_TOKEN="${ADMIN_TOKEN:-vaultwarden-lang-zhcn-smoke-token}"
 SMTP_SMOKE="${SMTP_SMOKE:-0}"
