@@ -77,6 +77,16 @@
                         <span class="d-block"><b>否</b></span>
                     {{/unless}}
                     </dd>
+                    <dt class="col-sm-5">使用自定义模板</dt>
+                    <dd class="col-sm-7">
+                    {{#if page_data.template_overrides}}
+                        <span class="d-inline"><b>是</b></span>
+                        <span class="badge bg-info text-dark abbr-badge" title="正在使用自定义模板文件。&#013;&#010;{{page_data.template_overrides}}">详细信息</span>
+                    {{/if}}
+                    {{#unless page_data.template_overrides}}
+                        <span class="d-block"><b>否</b></span>
+                    {{/unless}}
+                    </dd>
                     <dt class="col-sm-5">使用反向代理</dt>
                     <dd class="col-sm-7">
                     {{#if page_data.ip_header_exists}}

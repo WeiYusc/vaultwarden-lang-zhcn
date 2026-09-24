@@ -6,28 +6,34 @@ from pathlib import Path
 import argparse
 import hashlib
 import json
+import subprocess
 import sys
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_VERSION = "1.37.0"
+DEFAULT_VERSION = "1.37.3"
 EXPECTED_SCHEMA_VERSION = 1
 EXPECTED_REPO = "https://github.com/dani-garcia/vaultwarden"
 EXPECTED_TEMPLATES_PATH = "src/static/templates"
 EXPECTED_COMMITS = {
     "1.36.0": "f21a3adae2fbb8582b60b121783c597fe6895ff4",
     "1.37.0": "46ae59eaf444f0ae0a799070cf2bd6c415284a51",
+    "1.37.3": "eb212e23fad88e6136723f43e5b73543fa7026d3",
 }
 EXPECTED_SCOPE = ["admin", "email"]
 
 
-def load_json(path: Path) -> Any:
+def load_json(path: Path, root: Path) -> Any:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        raise SystemExit(f"[FAIL] missing {path.relative_to(ROOT)}")
+        raise SystemExit(f"[FAIL] missing {path.relative_to(root)}")
     except json.JSONDecodeError as exc:
-        raise SystemExit(f"[FAIL] invalid JSON in {path.relative_to(ROOT)}: {exc}")
+        raise SystemExit(f"[FAIL] invalid JSON in {path.relative_to(root)}: {exc}")
+
+
+def git(source: Path, *args: str) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.run(["git", "-C", str(source), *args], capture_output=True, check=False)
 
 
 def sha256(path: Path) -> str:
@@ -41,13 +47,16 @@ def sha256(path: Path) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--version", default=DEFAULT_VERSION)
+    parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument("--source-git", type=Path)
     args = parser.parse_args()
 
-    upstream_dir = ROOT / "upstream" / args.version
+    root = args.root.resolve()
+    upstream_dir = root / "upstream" / args.version
     manifest_path = upstream_dir / "manifest.json"
     checksums_path = upstream_dir / "checksums.json"
-    manifest = load_json(manifest_path)
-    checksums_doc = load_json(checksums_path)
+    manifest = load_json(manifest_path, root)
+    checksums_doc = load_json(checksums_path, root)
 
     ok = True
 
@@ -124,8 +133,41 @@ def main() -> int:
         if expected != actual:
             fail(f"sha256 mismatch for {rel}: expected {expected}, actual {actual}")
 
+    source_files_checked = 0
+    if args.source_git is not None and expected_commit is not None:
+        source = args.source_git.resolve()
+        prefix = upstream.get("templates_path")
+        if prefix == EXPECTED_TEMPLATES_PATH:
+            source_listing = git(
+                source, "ls-tree", "-r", "--name-only", expected_commit, "--",
+                f"{prefix}/admin", f"{prefix}/email",
+            )
+            if source_listing.returncode:
+                fail(f"cannot list source Git objects at {expected_commit}: {source_listing.stderr.decode(errors='replace').strip()}")
+                source_files = []
+            else:
+                source_files = sorted(
+                    path.removeprefix(prefix + "/")
+                    for path in source_listing.stdout.decode().splitlines()
+                    if path.endswith(".hbs")
+                )
+            if source_files != manifest_files:
+                missing = sorted(set(source_files) - set(manifest_files))
+                extra = sorted(set(manifest_files) - set(source_files))
+                fail(f"source file set mismatch: missing_from_manifest={missing}, extra_in_manifest={extra}")
+            for rel in manifest_files:
+                result = git(source, "show", f"{expected_commit}:{prefix}/{rel}")
+                if result.returncode:
+                    fail(f"source Git object missing: {rel}")
+                    continue
+                source_files_checked += 1
+                path = upstream_dir / rel
+                if path.is_file() and path.read_bytes() != result.stdout:
+                    fail(f"source content mismatch: {rel}")
+
     if ok:
-        print(f"[OK] upstream/{args.version}: {len(actual_files)} files match manifest and sha256 checksums")
+        suffix = f", source_files_checked={source_files_checked}" if args.source_git is not None else ""
+        print(f"[OK] upstream/{args.version}: {len(actual_files)} files match manifest and sha256 checksums{suffix}")
         return 0
     return 1
 

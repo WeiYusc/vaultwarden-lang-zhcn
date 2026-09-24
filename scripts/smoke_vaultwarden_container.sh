@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE="${VAULTWARDEN_IMAGE:-vaultwarden/server:1.37.0}"
+DEFAULT_IMAGE="vaultwarden/server:1.37.3"
+DEFAULT_IMAGE_DIGEST="sha256:1587c45feaa479f1f5e8af3b00eded36bff77bcf1880cf8dbf0541706dd470e0"
+IMAGE="${VAULTWARDEN_IMAGE:-$DEFAULT_IMAGE}"
 PORT="${SMOKE_PORT:-8099}"
 ADMIN_TOKEN="${ADMIN_TOKEN:-vaultwarden-lang-zhcn-smoke-token}"
 SMTP_SMOKE="${SMTP_SMOKE:-0}"
@@ -169,6 +171,15 @@ fi
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
   echo "[SKIP] Docker image '${IMAGE}' is not present locally; not pulling because this smoke test is offline-safe." >&2
   exit 125
+fi
+
+if [[ -z "${VAULTWARDEN_IMAGE:-}" ]]; then
+  actual_digest="$(docker image inspect "$IMAGE" --format '{{join .RepoDigests "\n"}}' | grep -F "@$DEFAULT_IMAGE_DIGEST" || true)"
+  if [[ -z "$actual_digest" ]]; then
+    echo "[FAIL] default image identity does not include expected digest ${DEFAULT_IMAGE_DIGEST}" >&2
+    exit 1
+  fi
+  echo "[OK] default image identity: ${actual_digest}"
 fi
 
 SMTP_ARGS=()

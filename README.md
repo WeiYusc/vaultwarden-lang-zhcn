@@ -1,111 +1,58 @@
 # vaultwarden-lang-zhcn
 
-vaultwarden 简体中文模板翻译包，适用于 vaultwarden `1.37.0` 的 `admin` 与 `email` Handlebars 模板。
-
-本仓库仅提供 vaultwarden 模板文件的简体中文翻译，不是 vaultwarden 的 fork，也不包含或分发 vaultwarden 服务端源码。安装时仅将 `templates/admin` 与 `templates/email` 放入或挂载到 vaultwarden 的模板覆盖目录，不需要修改容器镜像内的源码文件。
-
-## 内容
-
-- `templates/admin/`：管理后台模板简体中文翻译。
-- `templates/email/`：邮件模板简体中文翻译。
-- `upstream/1.37.0/`：用于校验的官方 1.37.0 admin/email 模板基线。
-- `scripts/`：本地校验与打包脚本。
+适用于 Vaultwarden `1.37.3` 的 `admin` 与 `email` Handlebars 简体中文模板覆盖包。本项目不是 Vaultwarden fork，不包含服务端源码；只把 `templates/admin` 和 `templates/email` 挂载到运行时模板覆盖目录。
 
 ## 使用
 
-请先备份现有模板。本项目翻译的是 vaultwarden 官方源码中的 `src/static/templates/admin` 与 `src/static/templates/email` 模板；运行时请使用 vaultwarden 的模板覆盖目录，不要直接修改容器镜像内的源码路径。
-
-Docker 部署通常可以将本仓库的 `templates/` 目录只读挂载到容器内 `/data/templates`，例如：
+请先备份已有模板。Docker 示例：
 
 ```bash
 docker run ... \
   -v /path/to/vaultwarden-lang-zhcn/templates:/data/templates:ro \
-  vaultwarden/server:1.37.0
+  vaultwarden/server:1.37.3
 ```
 
-如果使用非 Docker 部署，请将 `templates/admin` 与 `templates/email` 复制到 vaultwarden 实际读取的模板覆盖目录。具体路径仍以你的部署配置为准。
+未随包提供的顶层 `404.hbs` 与 `scss/` 仍由 Vaultwarden 内置模板回退。不要从其他版本补入这些文件。
 
-> **关于缺省模板回退：**部分 vaultwarden 安装方式的 data 目录初始并不会包含 `templates/`。这是正常现象；vaultwarden 会先尝试从 `/data/templates` 等运行时覆盖目录读取同名模板，找不到的模板继续使用程序内置的官方模板。因此，本项目只提供并覆盖 `admin/` 与 `email/` 时，未随包提供的顶层 `404.hbs` 和 `scss/` 模板仍会从 vaultwarden 内置模板加载，不会因为 `/data/templates` 目录里没有这些文件而导致 404 页面或 CSS 失效。不要为了“补齐目录”混入其他 vaultwarden 版本或其他实例的 `404.hbs`/`scss` 文件；如确需自定义它们，应使用与你当前 vaultwarden 版本完全一致的官方模板作为基线单独维护。
+## 1.37.3 更新
+
+目标上游为正式 tag `1.37.3`、commit `eb212e23fad88e6136723f43e5b73543fa7026d3`：<https://github.com/dani-garcia/vaultwarden/releases/tag/1.37.3>。
+
+从 `1.37.0` 到 `1.37.3` 不再是“译文零变化”的元数据升级：
+
+- `diagnostics.hbs` 新增自定义模板状态和详细信息中文文案；
+- `users.hbs`、`organizations.hbs` 同步 DataTables 3 所需结构，并移除旧 jQuery 引用；
+- `admin_reset_password.hbs` / `.html.hbs` 被 `admin_account_recovery.hbs` / `.html.hbs` 替代；
+- 新账户恢复邮件覆盖主密码重置、2FA 重置以及邮件 2FA fallback。
+
+发布序列记录：`1.37.1` 引入本轮模板差异，`1.37.2` 与 `1.37.3` 继续纳入审核并以 `1.37.3` 作为发布基线。历史 `upstream/1.36.0`、`upstream/1.37.0` 保留用于回滚与旧版本校验。
 
 ## 已知边界
 
-vaultwarden 管理后台目前并非所有文本都通过 Handlebars 模板提供。本项目只覆盖官方支持通过模板覆盖的内容，因此仍可能看到少量英文：
+本项目仅翻译固定 Handlebars 文案。设置项名称、说明和 feature 文档由 Vaultwarden Rust 配置或内置静态资源动态提供，不能通过 `/data/templates` 覆盖。`CLIENT_SUPPRESS_ONBOARDING`、`SSO_SIGNUPS_ALLOWED` 和 feature flag `pm-32413-multi-client-password-management` 属于该边界，可能仍显示英文。管理后台内置 JavaScript 文案也不在覆盖范围。
 
-- 设置页中大量配置项名称、说明、tooltip 来自 vaultwarden 程序内置配置文档数据，而不是 `admin/*.hbs` 模板文本。
-- Vaultwarden `1.37.0` 新增的 `Trusted proxies`、`Seconds between unauthenticated requests`、`Max burst size for unauthenticated requests` 也属于上述动态配置文档，因此仍会显示英文。
-- 管理后台部分弹窗和异步操作提示来自内置静态 JavaScript（例如 `admin_settings.js`），不能通过 `/data/templates` 覆盖。
-- `SMTP`、`SSO`、`2FA`、`WebAuthn`、`FIDO2`、`Vaultwarden` 等产品/技术名默认保留英文。
-
-如需翻译这些内容，通常需要维护 vaultwarden 源码或内置静态资源的自定义 fork；这超出了本模板翻译包的目标范围。
-
-## 校验
+## 校验与打包
 
 ```bash
 make check
+make package-check
 ```
 
-校验内容：
+`make check` 校验 `upstream/1.37.3` manifest/checksum、文件列表、Handlebars token、邮件分隔符和有限的关键结构属性。`make package-check` 构建 tar/zip 后执行安全审计，拒绝路径穿越、链接/特殊文件、重复或禁入成员、旧邮件名，并核对两个归档与源文件的成员及内容一致性。
 
-1. `upstream/1.37.0/manifest.json` 与 `checksums.json` 固定官方仓库、tag、commit、admin/email 范围、文件列表及 SHA-256，并校验本仓库保存的上游基线文件未漂移。
-2. `templates/admin`、`templates/email` 文件列表与官方 1.37.0 基线一致。
-3. Handlebars token、block、partial、triple braces 与官方模板保持一致。
-4. 除 `email_header.hbs`、`email_footer.hbs`、`email_footer_text.hbs` 三个 partial 外，所有 email `.hbs` / `.html.hbs` 模板均保留恰好一个 `<!---------------->` subject/body 分隔符。
-
-也可单独运行：
-
-```bash
-make check-upstream
-```
-
-## 容器 smoke test
-
-如果本机已有 Docker 镜像 `vaultwarden/server:1.37.0`，可运行：
-
-```bash
-make smoke
-```
-
-脚本会启动临时 vaultwarden 容器，默认监听 `127.0.0.1:8099`，并将本仓库 `templates/` 只读挂载到 `/data/templates`。
-
-验证范围包括 `/alive`、中文 admin 登录页，以及登录后的 `/admin`、`/admin/diagnostics`、`/admin/users/overview`、`/admin/organizations/overview`。端口和镜像可用环境变量覆盖：`SMOKE_PORT=8098 VAULTWARDEN_IMAGE=vaultwarden/server:1.37.0 make smoke`。脚本不会自动拉取镜像，缺失时返回 skip，并会自动清理容器和临时目录。
-
-可选 SMTP debug 验证：
-
-```bash
-SMTP_SMOKE=1 make smoke
-```
-
-SMTP smoke 使用脚本内置的极简本地 SMTP 调试服务器，默认监听 `127.0.0.1:1025`，可通过 `SMTP_SMOKE_PORT=1026` 覆盖。为避免 Docker `host-gateway`/防火墙差异，启用 SMTP smoke 时脚本会使用 Docker host networking 并设置 `ROCKET_PORT=$SMOKE_PORT`；该模式主要面向 Linux Docker 环境。普通 `make smoke` 不使用 host networking。
-
-## 本地容器验证记录
-
-当前版本已使用 `vaultwarden/server:1.37.0`（镜像摘要 `sha256:e6443e3d5ed8fcee2204b89ec778d7f24d0173bcc42d1ea34f990304f5f63f51`）在本地容器中挂载本项目 `templates/` 完成以下 smoke test：
-
-- `/admin` 登录页可渲染中文模板。
-- 登录后 `/admin`、`/admin/diagnostics`、`/admin/users/overview`、`/admin/organizations/overview` 均返回 `200 OK`。
-- `/admin/test/smtp` 成功通过本地 SMTP 调试服务器发送测试邮件，邮件 subject/body 使用中文模板且无 template/render 错误。
-
-## 打包
-
-```bash
-make package
-```
-
-产物输出到 `dist/`，包含 `.tar.gz` 与 `.zip`。默认包名形如：
+默认产物：
 
 ```text
-vaultwarden-lang-zhcn-admin-email-1.37.0-zh.1.tar.gz
-vaultwarden-lang-zhcn-admin-email-1.37.0-zh.1.zip
+vaultwarden-lang-zhcn-admin-email-1.37.3-zh.1.tar.gz
+vaultwarden-lang-zhcn-admin-email-1.37.3-zh.1.zip
 ```
 
-## 翻译来源
+## 容器 smoke（单独运行）
 
-当前版本基于 vaultwarden 官方仓库 `1.37.0` 模板制作：<https://github.com/dani-garcia/vaultwarden>。
+如果本机已有官方镜像，可运行 `make smoke`。默认镜像是 `vaultwarden/server:1.37.3`，脚本会核对默认镜像包含预期 registry digest；设置 `VAULTWARDEN_IMAGE` 可显式覆盖。脚本不自动拉取镜像。可用 `SMOKE_PORT` 覆盖端口；`SMTP_SMOKE=1` 在 Linux Docker 下额外执行 SMTP 测试。
 
-简体中文译文主要参考 `wcjxixi/vaultwarden-lang-zhcn`，并在与当前模板结构可对应时复用既有译文：<https://github.com/wcjxixi/vaultwarden-lang-zhcn>。
+本次变更的运行时验证不属于本静态/发布元数据 slice，需在后续独立执行后再更新运行时验证记录。
 
-参考翻译缺失的模板根据官方英文原文补译。Vaultwarden `1.36.0` 到 `1.37.0` 的官方 admin/email 模板内容未变化，因此本次版本跟进不修改中文译文。
+## 翻译来源与许可
 
-## 许可证
-
-见 `LICENSE` 与 `NOTICE.md`。
+中文译文主要参考 `wcjxixi/vaultwarden-lang-zhcn`，新增内容依据官方英文模板翻译并保持 token/结构契约。详见 `UPSTREAM.md`、`TRANSLATION_STATUS.md`、`NOTICE.md` 与 `LICENSE`。

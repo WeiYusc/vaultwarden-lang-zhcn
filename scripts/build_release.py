@@ -7,7 +7,7 @@ import tarfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_NAME = "vaultwarden-lang-zhcn-admin-email-1.37.0-zh.1"
+DEFAULT_NAME = "vaultwarden-lang-zhcn-admin-email-1.37.3-zh.1"
 INCLUDE = [
     "templates",
     "README.md",
@@ -20,7 +20,12 @@ INCLUDE = [
 
 
 def add_to_tar(tar: tarfile.TarFile, src: Path, arcbase: str) -> None:
-    tar.add(src, arcname=f"{arcbase}/{src.relative_to(ROOT)}")
+    if src.is_dir():
+        for path in sorted(src.rglob("*")):
+            if path.is_file():
+                tar.add(path, arcname=f"{arcbase}/{path.relative_to(ROOT)}", recursive=False)
+    else:
+        tar.add(src, arcname=f"{arcbase}/{src.relative_to(ROOT)}", recursive=False)
 
 
 def add_to_zip(zipf: zipfile.ZipFile, src: Path, arcbase: str) -> None:
