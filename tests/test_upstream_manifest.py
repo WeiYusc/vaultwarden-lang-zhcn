@@ -81,11 +81,15 @@ class UpstreamManifestChecks(unittest.TestCase):
         self.assertIn("sha256 mismatch for admin/base.hbs", result.stdout)
 
     def test_source_git_rejects_content_not_from_commit(self) -> None:
+        if not (SOURCE_GIT / ".git").exists():
+            self.skipTest("external upstream audit repository is unavailable")
         result = self.run_check("--source-git", str(SOURCE_GIT))
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("source content mismatch", result.stdout)
 
     def test_source_git_rejects_missing_or_extra_source_paths(self) -> None:
+        if not (SOURCE_GIT / ".git").exists():
+            self.skipTest("external upstream audit repository is unavailable")
         self.mutate_manifest(lambda doc: doc["files"].pop())
         result = self.run_check("--source-git", str(SOURCE_GIT))
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
